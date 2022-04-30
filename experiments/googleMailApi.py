@@ -1,10 +1,33 @@
 import os.path
+import typing as typ
+import inspect
+import base64
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from googleapiclient.http import HttpRequest
+
+import CONFIG as CFG
+
+
+class GmailLogger:
+    @staticmethod
+    def printSeparator() -> None:
+        print("\n" + "#" * 20 + "\n")
+
+    @classmethod
+    def describeObject(cls, obj: typ.Any) -> None:
+        print(f"OBJECT: {obj}")
+        print(f"OBJECT TYPE: {type(obj)}")
+        print(f"METHODS AND ATTRIBUTES OF OBJECT:\n")
+        for method in dir(obj):
+            if method[0] != "_":
+                print(method)
+
+        cls.printSeparator()
 
 
 class GmailController:
@@ -44,20 +67,61 @@ class GmailController:
         """
         Shows basic usage of the Gmail API . Lists user's Gmail labels.
 
-        :return:
+        Returns:
+
         """
 
         creds = cls._getCredentials()
 
         try:
             # Call teh Gmail API
-            service = build("gmail", "v1", credentials=creds)
+            service = build("gmail",
+                            "v1",
+                            credentials=creds)
+
+            ###########
+            GmailLogger.describeObject(service)
+
+            users = service.users()
+            GmailLogger.describeObject(users)
+
+            messages = users.messages()
+            GmailLogger.describeObject(messages)
+
+            mlist = messages.list(userId="me",
+                                  q=CFG.SEARCH_STRING_LIDER)
+            GmailLogger.describeObject(mlist)
+
+            print(mlist.to_json())
+            GmailLogger.printSeparator()
+
+            # print(f"MAILS BODY: {[mlist.body()]}")
+
+            exec = mlist.execute()
+            GmailLogger.describeObject(exec)
+
+            msgs = [users.messages().get(userId="me",
+                                         id=ident["id"],
+                                         format="full") for ident in exec["messages"]]
+            for msg in msgs[:2]:
+                msg_dict = msg.execute()
+                print(msg_dict["payload"].keys())
+                print(len(msg_dict["payload"]["parts"]))
+                print(msg_dict["payload"]["parts"][1].keys())
+                body = msg_dict["payload"]["parts"][1]["body"]["data"]
+                html_body = base64.urlsafe_b64decode(body)
+                html_body
+                print(f"HTML BODY TYPE: {type(html_body)}")
+                print(html_body)
+            ###########
+
             results = service.users().labels().list(userId="me").execute()
+            service.users()
             labels = results.get("labels", [])
 
             if not labels:
                 print("No labels found.")
-                return
+            return
             print("Labels:")
             for label in labels:
                 print(label["name"])

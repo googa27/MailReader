@@ -13,8 +13,10 @@ class MailReader(metaclass=abc.ABCMeta):
         """
         pass
 
+
 class MailReaderLider(MailReader):
     pass
 
-class MailReaderAgua(MailReader):
+
+class MailReaderWater(MailReader):
     pass

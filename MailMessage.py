@@ -1,0 +1,2 @@
+class MailMessage:
+    pass

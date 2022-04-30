@@ -1,3 +1,6 @@
+import abc
+
+
 class MailReader(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def parse(self, *args, **kwargs):

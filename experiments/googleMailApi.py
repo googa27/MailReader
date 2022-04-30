@@ -13,7 +13,7 @@ class GmailController:
     _PATH_TOKEN: str = "token.json"
 
     @classmethod
-    def _login(cls, creds):
+    def _login(cls, creds) -> Credentials:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
@@ -23,35 +23,31 @@ class GmailController:
         return creds
 
     @classmethod
-    def _save_creds(cls, creds):
+    def _save_creds(cls, creds) -> None:
         with open(cls._PATH_TOKEN, "w") as token:
             token.write(creds.to_json())
 
     @classmethod
-    def _manageCredentials(cls):
+    def _getCredentials(cls) -> Credentials:
         creds = None
-        # The file token.json stores the user's access and refresh tokens, and is
-        # created automatically when the authorization flow completes for the first
-        # time.
         if os.path.exists(cls._PATH_TOKEN):
             creds = Credentials.from_authorized_user_file(cls._PATH_TOKEN,
                                                           cls._SCOPES)
-        # If there are no (valid) credentials available, let the user log in.
         if not creds or not creds.valid:
             creds = cls._login(creds)
-            # Save the credentials for the next run
             cls._save_creds(creds)
+        print(f"TYPE OF CREDS: {type(creds)}")
         return creds
 
     @classmethod
     def get_labels(cls) -> None:
         """
-        SHOWS basic usage of the Gmail API . Lists user's Gmail labels.
+        Shows basic usage of the Gmail API . Lists user's Gmail labels.
 
         :return:
         """
 
-        creds = cls._manageCredentials()
+        creds = cls._getCredentials()
 
         try:
             # Call teh Gmail API

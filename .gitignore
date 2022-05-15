@@ -1,2 +1,6 @@
-/experiments/credentials.json
-/experiments/token.json
+/tests/credentials.json
+/tests/token.json
+/GmailApiInteraction/credentials.json
+/GmailApiInteraction/token.json
+/GmailApiInteraction/Credentials/credentials.json
+/GmailApiInteraction/Credentials/token.json

@@ -3,6 +3,9 @@ import typing as typ
 import base64
 import bs4
 import pandas as pd
+import datetime as dt
+import unidecode as unid
+import pathlib as pth
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -54,13 +57,13 @@ class GmailMessageLogger(GmailLogger):
     #     html_body = base64.urlsafe_b64decode(body)
     #     print(f"HTML BODY TYPE: {type(html_body)}")
     #     print(html_body)
-    pass
 
 
 ################# PARSERS #################
 
 
 class GmailMessageParser:
+    _DATE_HEADER_FORMAT = "%a, %d %b %Y %X %z (%Z)"
 
     @staticmethod
     def decode_body(raw_message: ghttp.HttpRequest) -> str:
@@ -76,14 +79,27 @@ class GmailMessageParser:
     def get_df_products(raw_message: ghttp.HttpRequest) -> pd.DataFrame:
         return GmailProductParser.get_df_products(raw_message=raw_message)
 
-    @staticmethod
-    def get_date_header(raw_message: ghttp.HttpRequest) -> str:
-        msg_dict = raw_message.execute()
-        return [d for d in msg_dict["payload"]["headers"] if d["name"] == "Date"][0]["value"]
+    @classmethod
+    def get_date_header(cls,
+                        raw_message: ghttp.HttpRequest) -> dt.datetime:
+        """
 
-    @staticmethod
-    def get_info_tables(raw_message: ghttp.HttpRequest) -> [bs4.element.Tag]:
-        msg_b: str = GmailMessageParser.decode_body(msg)
+        Args:
+            raw_message:
+
+        Returns: Date in the 'header' field in the google message.
+
+        """
+        msg_dict = raw_message.execute()
+        raw_date = [d for d in msg_dict["payload"]["headers"] if d["name"] == "Date"][0]["value"]
+        print(raw_date)
+        return dt.datetime.strptime(raw_date,
+                                    cls._DATE_HEADER_FORMAT)
+
+    @classmethod
+    def get_info_tables(cls,
+                        raw_message: ghttp.HttpRequest) -> [bs4.element.Tag]:
+        msg_b: str = cls.decode_body(raw_message=raw_message)
         soup = bs4.BeautifulSoup(msg_b,
                                  "html5lib")
         html = soup.find("html")
@@ -109,8 +125,10 @@ class GmailProductParser:
 
     @classmethod
     def get_df_products(cls, raw_message: ghttp.HttpRequest) -> pd.DataFrame:
-        return pd.DataFrame([cls._parse_table_element(table)
-                             for table in cls._get_product_tables(raw_message=raw_message)])
+        df_products = pd.DataFrame([cls._parse_table_element(table)
+                                    for table in cls._get_product_tables(raw_message=raw_message)])
+        df_products["unitary_price"] = df_products["total_price"] / df_products["units"]
+        return df_products
 
     @staticmethod
     def _get_product_tables(raw_message: ghttp.HttpRequest) -> [bs4.element.Tag]:
@@ -126,7 +144,7 @@ class GmailProductParser:
     @staticmethod
     def _parse_td_2(td: bs4.element.Tag) -> {str: typ.Union[str, float]}:
         divs = td.find_all("div")
-        brand_product = {k.strip(): v.strip()
+        brand_product = {k.strip(): unid.unidecode(v.strip())
                          for k, v in zip(["brand", "product"],
                                          divs[0].get_text().split("·"))
                          }
@@ -223,7 +241,7 @@ class GmailController:
             print(f"An error occured: {error}")
 
     def get_raw_messages(self,
-                         q: str) -> [ghttp.HttpRequest]:
+                         q: str = CFG.SEARCH_STRING_LIDER) -> [ghttp.HttpRequest]:
         try:
             return [self._users_resource.messages().get(userId="me",
                                                         id=ident["id"])
@@ -255,12 +273,99 @@ class GmailController:
             print(f"An error occured: {error}")
 
 
-if __name__ == '__main__':
-    gc = GmailController()
-    msgs = gc.get_raw_messages(q=CFG.SEARCH_STRING_LIDER)
+################# LOCAL DATA INTERACTIONS #################
+class SettlementsManager:
+    _DATE_FILENAME_FORMAT = "%Y-%m-%d"
 
-    date = GmailMessageParser.get_date_header(msgs[0])
-    print(date)
+    def __init__(self,
+                 root_settlements: pth.Path = CFG.ROOT_LOCAL_SETTLEMENTS):
+        self._root_settlements: pth.Path = root_settlements
+
+    def get_latest_settlement_date(self) -> dt.date:
+        files = self._root_settlements.glob("*.xlsx")
+        dates = [dt.datetime.strptime(file.stem, self._DATE_FILENAME_FORMAT).date()
+                 for file in files]
+        return max(dates)
+
+    def get_save_path(self, date: dt.date = dt.date.today()) -> pth.Path:
+        return self._root_settlements / f"{date.strftime(self._DATE_FILENAME_FORMAT)}.xlsx"
+
+
+################# ACCOUNTANT #################
+
+class Accountant:
+
+    def __init__(self):
+        self._gmailController = GmailController()
+        self._settlementsManager = SettlementsManager()
+
+    def get_latest_settlement(self,
+                              save: bool = False,
+                              filter_payables=True) -> typ.Optional[pd.DataFrame]:
+        dt_to_df = self._get_product_dfs(dateStart=self._settlementsManager.get_latest_settlement_date())
+        if not dt_to_df:
+            print("No data for Settlement.")
+            return None
+
+        settlement = pd.concat(list(dt_to_df.values()))
+        if filter_payables:
+            settlement = self._filter_payable_products(settlement)
+
+        settlement = self._add_total_row(settlement)
+
+        if save:
+            settlement.to_excel(self._settlementsManager.get_save_path(),
+                                index=False)
+        return settlement
+
+    def _get_product_dfs(self,
+                         dateStart: dt.date = dt.date.min) -> {dt.date: pd.DataFrame}:
+        msgs = self._gmailController.get_raw_messages()
+        datet_to_msgs = {GmailMessageParser.get_date_header(msg): msg
+                         for msg in msgs}
+        dt_to_df = {datet.date(): GmailProductParser.get_df_products(msg)
+                    for datet, msg in sorted(datet_to_msgs.items(),
+                                             key=lambda item: item[0])
+                    if datet.date() >= dateStart}
+        for date, df in dt_to_df.items():
+            df["date"] = date
+        return dt_to_df
+
+    @staticmethod
+    def _filter_payable_products(df: pd.DataFrame) -> pd.DataFrame:
+        mask_payable = df["product"].str.lower().apply(lambda s: any(product in s
+                                                                     for product in CFG.PAYABLE_PRODUCTS)
+                                                       )
+        return df[mask_payable]
+
+    @staticmethod
+    def _add_total_row(df: pd.DataFrame) -> pd.DataFrame:
+        row_total = {col: "TOTAL" for col in df.columns
+                     if col != "total_price"}
+        row_total = row_total | {"total_price": df["total_price"].sum()}
+        row_total = pd.DataFrame(row_total,
+                                 index=["TOTAL"])
+        return pd.concat([df,
+                          row_total])
+
+
+if __name__ == '__main__':
+    # gc = GmailController()
+    # msgs = gc.get_raw_messages(q=CFG.SEARCH_STRING_LIDER)
+    #
+    # date = GmailMessageParser.get_date_header(msgs[0])
+    # print(date)
+    # df = GmailProductParser.get_df_products(msgs[0])
+    # print(df)
+    # print(df.iloc[0])
+    #
+    # lsm = SettlementsManager()
+    # print(lsm.get_latest_settlement_date())
+
+    accountant = Accountant()
+    # print(accountant.get_product_dfs())
+    settlement = accountant.get_latest_settlement(save=True)
+    print(settlement)
 
     # msg_dict = msgs[0].execute()
     # date = [d for d in msg_dict["payload"]["headers"] if d["name"] == "Date"][0]["value"]
@@ -304,6 +409,8 @@ if __name__ == '__main__':
     # for div in divs:
     #     print(div.get_text())
     # print(len(divs))
+
+    GmailLogger.printSeparator()
 
     if False:
         for msg in msgs[:1]:

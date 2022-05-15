@@ -14,6 +14,11 @@ import googleapiclient.discovery as gdsc
 from googleapiclient.errors import HttpError
 import googleapiclient.http as ghttp
 
+import sys
+
+for path in sys.path:
+    print(path)
+
 import CONFIG as CFG
 
 
@@ -98,7 +103,7 @@ class GmailMessageParser:
 
     @classmethod
     def get_info_tables(cls,
-                        raw_message: ghttp.HttpRequest) -> [bs4.element.Tag]:
+                        raw_message: ghttp.HttpRequest) -> typ.List[bs4.element.Tag]:
         msg_b: str = cls.decode_body(raw_message=raw_message)
         soup = bs4.BeautifulSoup(msg_b,
                                  "html5lib")
@@ -131,18 +136,18 @@ class GmailProductParser:
         return df_products
 
     @staticmethod
-    def _get_product_tables(raw_message: ghttp.HttpRequest) -> [bs4.element.Tag]:
+    def _get_product_tables(raw_message: ghttp.HttpRequest) -> typ.List[bs4.element.Tag]:
         msg_dict = raw_message.execute()
         text_body = msg_dict["payload"]["parts"][0]["body"]["data"]
         text_body = base64.urlsafe_b64decode(text_body)
         return bs4.BeautifulSoup(text_body, "html.parser").select("div > table")
 
     @staticmethod
-    def _parse_td_1(td: bs4.element.Tag) -> {str: int}:
+    def _parse_td_1(td: bs4.element.Tag) -> typ.Dict[str, int]:
         return {"units": int(td.get_text())}
 
     @staticmethod
-    def _parse_td_2(td: bs4.element.Tag) -> {str: typ.Union[str, float]}:
+    def _parse_td_2(td: bs4.element.Tag) -> typ.Dict[str, typ.Union[str, float]]:
         divs = td.find_all("div")
         brand_product = {k.strip(): unid.unidecode(v.strip())
                          for k, v in zip(["brand", "product"],
@@ -162,13 +167,13 @@ class GmailProductParser:
         return brand_product | weight_unit
 
     @staticmethod
-    def _parse_td_3(td: bs4.element.Tag) -> {str: int}:
+    def _parse_td_3(td: bs4.element.Tag) -> typ.Dict[str, int]:
         clean_price_string = td.get_text().replace(".", "").replace("$", "")
         return {"total_price": int(clean_price_string)}
 
     @classmethod
     def _parse_table_element(cls,
-                             table: bs4.element.Tag) -> {str: typ.Union[str, int]}:
+                             table: bs4.element.Tag) -> typ.Dict[str, typ.Union[str, int]]:
         tds = table.find_all("td")
         return cls._parse_td_1(tds[1]) | cls._parse_td_2(tds[2]) | cls._parse_td_3(tds[3])
 
@@ -177,7 +182,7 @@ class GmailProductParser:
 
 
 class GmailCredentialManager:
-    _SCOPES: [str] = ['https://www.googleapis.com/auth/gmail.readonly']
+    _SCOPES: typ.List[str] = ['https://www.googleapis.com/auth/gmail.readonly']
     _PATH_CREDENTIALS: str = "credentials.json"
     _PATH_TOKEN: str = "token.json"
 
@@ -223,7 +228,7 @@ class GmailController:
             print(f"An error occured: {error}")
 
     def _get_message_ids(self,
-                         q: str) -> [{str, str}]:
+                         q: str) -> typ.List[typ.Dict[str, str]]:
         """
 
         Args:
@@ -241,7 +246,7 @@ class GmailController:
             print(f"An error occured: {error}")
 
     def get_raw_messages(self,
-                         q: str = CFG.SEARCH_STRING_LIDER) -> [ghttp.HttpRequest]:
+                         q: str = CFG.SEARCH_STRING_LIDER) -> typ.List[ghttp.HttpRequest]:
         try:
             return [self._users_resource.messages().get(userId="me",
                                                         id=ident["id"])
@@ -319,7 +324,7 @@ class Accountant:
         return settlement
 
     def _get_product_dfs(self,
-                         dateStart: dt.date = dt.date.min) -> {dt.date: pd.DataFrame}:
+                         dateStart: dt.date = dt.date.min) -> typ.Dict[dt.date, pd.DataFrame]:
         msgs = self._gmailController.get_raw_messages()
         datet_to_msgs = {GmailMessageParser.get_date_header(msg): msg
                          for msg in msgs}
@@ -350,73 +355,20 @@ class Accountant:
 
 
 if __name__ == '__main__':
-    # gc = GmailController()
-    # msgs = gc.get_raw_messages(q=CFG.SEARCH_STRING_LIDER)
-    #
-    # date = GmailMessageParser.get_date_header(msgs[0])
-    # print(date)
-    # df = GmailProductParser.get_df_products(msgs[0])
-    # print(df)
-    # print(df.iloc[0])
-    #
-    # lsm = SettlementsManager()
-    # print(lsm.get_latest_settlement_date())
+
+    path_json = pth.Path("credentials.json")
+    print(path_json.is_file())
+    print(list(pth.Path(__file__).parent.glob("*.json")))
 
     accountant = Accountant()
-    # print(accountant.get_product_dfs())
     settlement = accountant.get_latest_settlement(save=True)
     print(settlement)
-
-    # msg_dict = msgs[0].execute()
-    # date = [d for d in msg_dict["payload"]["headers"] if d["name"] == "Date"][0]["value"]
-    # print(date)
-
-    # for msg in msgs[:1]:
-    #     soup = GmailMessageParser.get_date(msg)
-    #     print(type(soup))
-    #     print(soup.prettify())
-    # print(soup.find_all("div", id=":2k"))
-
-    # for msg in msgs[:1]:
-    #     # tables = GmailMessageParser.get_product_tables(msg)
-    #     df = GmailMessageParser.get_df_products(raw_message=msg)
-    #     GmailLogger.printSeparator()
-    #     print(df)
-    #     GmailLogger.printSeparator()
-    #     print(df.describe())
-    #     GmailLogger.printSeparator()
-    #     print(df.info())
-    #     GmailLogger.printSeparator()
-    #     print(df.iloc[0])
-
-    # for tab in tables[:1]:
-    #     print(GmailMessageParser.parse_table_element(table=tab))
-    # tds = tab.find_all("td")
-    # for i, td in enumerate(tds):
-    #     print(f"{i}-th TD")
-    #     print(td.prettify())
-    # print(tab.get_text())
-    # msg_b: str = GmailMessageParser.decode_body(msg)
-    # # print(msg_b)
-    # soup = bs4.BeautifulSoup(msg_b, "html.parser")
-    # print(len(list(soup.children)))
-    # # divs = soup.find_all("div")
-    # print([t.name for t in soup.children])
-    # divs = soup.find_all("div", recursive=False)
-    # tables = soup.select("div > table")  # soup.find_all("table")
-    # print(f"N DIVS: {len(divs)}")
-    # print(f"N TABLES: {len(tables)}")
-    # for div in divs:
-    #     print(div.get_text())
-    # print(len(divs))
 
     GmailLogger.printSeparator()
 
     if False:
         for msg in msgs[:1]:
             msg_b: str = GmailMessageParser.decode_body(msg)
-            # msg_b = msg_b.replace("\n", "").replace("\t", "")
-            # print(str(msg_b))
 
             GmailLogger.printSeparator()
 
@@ -449,31 +401,3 @@ if __name__ == '__main__':
                 GmailMessageLogger.printSeparator()
                 print(f"TABLE INDEX: {i}")
                 print(tab)
-                # GmailMessageLogger.printSeparator()
-
-            # table = center.find("table")
-            # GmailMessageLogger.printTagChildren(table)
-            # print(table)
-
-            # print(list(center.children)[-1])
-
-            # print(soup.find_all("div", id=":2k"))
-            # print(list(soup.children)[-1])
-            # print(len(soup.find_all("div", id=":2k")))
-            # print(len(soup.find_all("center", style="background:#fafafa")))
-            # print(len(soup.find_all("table",
-            #                         align="center",
-            #                         border="0",
-            #                         cellpadding="0",
-            #                         cellspacing="0",
-            #                         width="100%")))
-            # divs = soup.find_all("div", recursive=False)
-            # print(len(divs))
-            # print([type(x) for x in soup.children])
-            # print(list(soup.children)[1])
-            # print([tag.name for tag in soup.children])
-            # print(soup.find_all("div"))
-
-    # gc.get_labels()
-
-# \:2k > div:nth-child(2) > center

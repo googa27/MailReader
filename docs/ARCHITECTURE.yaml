@@ -1,0 +1,219 @@
+{
+  "schema_version": "1.0.0",
+  "repository": {
+    "owner": "googa27",
+    "name": "MailReader",
+    "profile": "legacy",
+    "status": "Legacy Skeleton",
+    "enforcement": "Advisory",
+    "project": "https://github.com/users/googa27/projects/24",
+    "issue": "https://github.com/googa27/MailReader/issues/1",
+    "upstream": "none configured locally"
+  },
+  "preservation": {
+    "archival_notice": "Historical/reference preservation only; not maintained, production-ready, secure, or operationally validated.",
+    "supersession_notice": "Prefer canonical upstream and maintained libraries for new work; this repository preserves attribution and evidence.",
+    "revival_gates": [
+      "Define threat model, private-data classification, retention policy, and redaction rules before reading real mail.",
+      "Use least-privilege OAuth/app credentials stored outside the repo; add secret scanning to CI before use.",
+      "Create public-synthetic email fixtures and parser/export oracle tests.",
+      "Declare supported providers/protocols and failure modes before stable API claims."
+    ],
+    "provenance": "near-empty legacy repository owned by googa27; no upstream remote configured locally",
+    "license_warning": "Root LICENSE is MIT.",
+    "security_warning": "Email parsing touches untrusted content; isolate attachments, avoid remote fetching, and use least-privilege credentials/keyrings on revival.",
+    "private_data_warning": "Never commit mailboxes, message bodies, addresses, credentials, OAuth tokens, app passwords, exports, or CSVs derived from private email.",
+    "data_posture": "No current data architecture; any revival requires private-email classification, retention, redaction, and local-custody plan."
+  },
+  "architecture": {
+    "style": "evolutionary, contract-first, advisory-preservation",
+    "layers": [],
+    "import_boundaries": {
+      "authority": "Inherited layout plus this preservation contract; no new internal coupling without revival",
+      "forbidden": [],
+      "cycle_policy": "No new cycles; inherited structure is preserved unless a separate low-risk revival/refactor is approved"
+    },
+    "public_api_paths": [],
+    "extension_points": [
+      "documented public scripts/notebooks when present",
+      "typed APIs and deterministic CLIs only after revival",
+      "adapters behind explicit protocols"
+    ]
+  },
+  "source_layout": {
+    "python_rules_applicable": false,
+    "python_source_roots": [],
+    "metadata_names": [
+      "ARCHITECTURE.md",
+      "ARCHITECTURE.yaml",
+      "README.md",
+      "__init__.py",
+      "py.typed"
+    ],
+    "allowed_non_python_files": [],
+    "future_rule": "Any revived Python package uses a src layout unless an evidence-backed exception is approved."
+  },
+  "limits": {
+    "max_immediate_runtime_entries": 10,
+    "max_python_module_lines": 500,
+    "measurement": "physical UTF-8 lines; immediate runtime .py files excluding __init__.py plus runtime package directories"
+  },
+  "libraries": {
+    "selection_policy": "Prefer well-maintained libraries with maintenance/API/license evidence and adapter boundaries before custom implementation.",
+    "decisions": [
+      {
+        "capability": "email parsing",
+        "selected": [
+          "Python stdlib email/mailbox/imaplib plus maintained parsers only if needed"
+        ],
+        "alternatives": [
+          "Custom MIME/parser implementation"
+        ],
+        "evidence": "Project #24 issue, docs/ARCHITECTURE.md, repository files, and cited research anchors",
+        "adapter_boundary": "Keep parsing behind a typed, testable message-evidence boundary.",
+        "custom_code_reason": "Only domain semantics, adapters, composition, or genuinely missing algorithms with oracle/reference tests are acceptable after revival."
+      },
+      {
+        "capability": "tabular export",
+        "selected": [
+          "pandas or csv stdlib based on scale"
+        ],
+        "alternatives": [
+          "Ad hoc string concatenation"
+        ],
+        "evidence": "Project #24 issue, docs/ARCHITECTURE.md, repository files, and cited research anchors",
+        "adapter_boundary": "Exports must have redaction and schema tests before use.",
+        "custom_code_reason": "Only domain semantics, adapters, composition, or genuinely missing algorithms with oracle/reference tests are acceptable after revival."
+      },
+      {
+        "capability": "credential storage",
+        "selected": [
+          "OS keyring/OAuth libraries after review"
+        ],
+        "alternatives": [
+          "Plaintext passwords/tokens"
+        ],
+        "evidence": "Project #24 issue, docs/ARCHITECTURE.md, repository files, and cited research anchors",
+        "adapter_boundary": "No credentials in repo, logs, fixtures, or examples.",
+        "custom_code_reason": "Only domain semantics, adapters, composition, or genuinely missing algorithms with oracle/reference tests are acceptable after revival."
+      },
+      {
+        "capability": "architecture bootstrap",
+        "selected": [
+          "Python standard-library json over JSON-subset YAML"
+        ],
+        "alternatives": [
+          "Hand-written YAML parser"
+        ],
+        "evidence": "Project #24 issue, docs/ARCHITECTURE.md, repository files, and cited research anchors",
+        "adapter_boundary": "Dependency-free advisory gate only.",
+        "custom_code_reason": "Only domain semantics, adapters, composition, or genuinely missing algorithms with oracle/reference tests are acceptable after revival."
+      }
+    ]
+  },
+  "interfaces": {
+    "ai": {
+      "primary_agent": "Hermes Agent",
+      "context_file": "AGENTS.md",
+      "interaction": "Minimal AGENTS explaining current skeleton and revival gate; no MCP/plugin.",
+      "capability_discovery": "AGENTS.md plus scripts/check_portfolio_architecture.py; no maintained runtime capability is claimed while archived.",
+      "skills": "Use/update a repo or class-level Hermes skill only for recurring non-trivial workflows after stable local contracts exist.",
+      "plugin_mcp_policy": "Deferred unless formal revival proves stable contracts, measured multi-client/tool interoperability, least privilege, and separate verification.",
+      "declared_entrypoints": [],
+      "mutation_safety": "Mutation is explicit, least-privileged, human-reviewable, and independently verified; no autonomous public side effects by default."
+    },
+    "human": {
+      "interaction": "No stable API yet; typed message/evidence interfaces only on revival.",
+      "public_api_paths": [],
+      "notebook_policy": "Deterministic public-synthetic notebooks/examples only after revival; legacy notebooks/scripts remain historical.",
+      "dunder_policy": "Only lawful Python/NumPy/IPython protocols with algebraic/parity tests; named methods own policy, effects, diagnostics, I/O, and ambiguity.",
+      "dunder_plan": [
+        "No API/dunder redesign in Project #24 preservation."
+      ],
+      "forbidden_dunders": [
+        "Ambiguous arithmetic/order",
+        "Stateful or effectful operators",
+        "Lossy implicit conversion",
+        "Dunders that hide policy, I/O, diagnostics, or failure modes"
+      ]
+    }
+  },
+  "tests": {
+    "required_suites": [
+      "unit",
+      "integration",
+      "e2e",
+      "architecture"
+    ],
+    "commands": {
+      "setup": "No supported automated setup is currently declared; treat this as a revival gate.",
+      "test": "No executable inherited runtime test command is currently declared; run the architecture checker only.",
+      "lint": "No lint command is currently declared.",
+      "architecture": "python scripts/check_portfolio_architecture.py"
+    },
+    "ci_workflow": "advisory; see blocking_ci exception",
+    "mirror_source": "Only after revival and stable source boundaries."
+  },
+  "data": {
+    "consumes_data": true,
+    "architecture": "No current data architecture; any revival requires private-email classification, retention, redaction, and local-custody plan.",
+    "required_controls": [
+      "source registry",
+      "typed contracts",
+      "classification",
+      "lineage",
+      "quality",
+      "freshness/vintage/effective time",
+      "content identity",
+      "replay",
+      "validation",
+      "license/provenance review"
+    ],
+    "core_repositories": {
+      "PDP": "Avoid core dependencies.",
+      "financial_problem_formulations": "Avoid core dependencies.",
+      "ui_and_artifacts": "Avoid core dependencies."
+    },
+    "source_registry_plan": [
+      "Define threat model, private-data classification, retention policy, and redaction rules before reading real mail.",
+      "Use least-privilege OAuth/app credentials stored outside the repo; add secret scanning to CI before use.",
+      "Create public-synthetic email fixtures and parser/export oracle tests.",
+      "Declare supported providers/protocols and failure modes before stable API claims."
+    ],
+    "flow": "source registry -> typed acquisition -> immutable Bronze -> canonical Silver -> curated Gold/features -> formulation/model -> governed output -> read-only UI/API/notebook",
+    "storage_and_replay": "Immutable raw/content-addressed inputs and public-synthetic fixtures are required before maintained data behavior is claimed.",
+    "quality_and_lineage": "Validate schema, grain, units, classification, lineage, freshness, license, and content identity before consumption; fail closed on missing evidence."
+  },
+  "governance": {
+    "architecture_source": "docs/ARCHITECTURE.yaml",
+    "update_rule": "Update README notice, AGENTS, contract, prose docs, tests, AI/human interfaces, and public API claims in the same change.",
+    "checker": "scripts/check_portfolio_architecture.py",
+    "required_documents": [
+      "README.md",
+      "AGENTS.md",
+      "docs/ARCHITECTURE.yaml",
+      "docs/ARCHITECTURE.md"
+    ],
+    "exception_policy": "exact scope, reason, owner, risk, accepted ceiling, and refactoring trigger; no-growth ratchet"
+  },
+  "exceptions": [
+    {
+      "rule": "python_source_layout",
+      "path": "src/",
+      "reason": "Legacy/fork/hardware preservation does not force a source-layout migration in an advisory documentation change.",
+      "owner": "googa27 Portfolio Project #24",
+      "risk": "Python source topology is not protected by src-specific blocking checks while archived.",
+      "accepted_ceiling": 0,
+      "refactoring_trigger": "Before adding a maintained Python package or material runtime feature, design a src layout and activate source checks."
+    },
+    {
+      "rule": "blocking_ci",
+      "path": ".github/workflows/portfolio-architecture.yml",
+      "reason": "Advisory legacy/fork/hardware preservation avoids noisy CI divergence until formal revival.",
+      "owner": "googa27 Portfolio Project #24",
+      "risk": "Architecture checks are local/advisory rather than automatic on the default branch.",
+      "accepted_ceiling": 0,
+      "refactoring_trigger": "Enable blocking CI before the first new runtime feature, public release, or maintained status claim."
+    }
+  ]
+}

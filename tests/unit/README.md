@@ -1,7 +1,3 @@
-# Unit tests
+# unit tests
 
-Repository: `MailReader`.
-
-Fast isolated behavior and mathematical-law tests; mirror source packages where useful.
-
-If no executable tests exist here yet, this README is the boundary contract: add the first test when a change introduces behavior in this tier.
+Unit tests belong here after revival for pure functions, parser/model components, adapters, and compatibility shims. This directory is intentionally empty for Project #24 preservation until a public-synthetic fixture set and supported runtime contract exist.

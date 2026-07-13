@@ -1,7 +1,3 @@
-# E2e tests
+# e2e tests
 
-Repository: `MailReader`.
-
-Installed public CLI/API golden paths using public-synthetic or sanitized fixtures.
-
-If no executable tests exist here yet, this README is the boundary contract: add the first test when a change introduces behavior in this tier.
+End-to-end tests belong here after revival for documented user workflows. No e2e gate is claimed while the repository remains legacy/advisory preservation.

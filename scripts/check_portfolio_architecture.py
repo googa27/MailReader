@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Validate the portfolio architecture contract without third-party dependencies.
+"""Advisory Project #24 architecture/preservation checker.
 
-`docs/ARCHITECTURE.yaml` is deliberately written in the JSON subset of YAML 1.2,
-so the standard-library JSON parser is sufficient for the bootstrap gate. Richer
-repository gates may add PyYAML or check-jsonschema; this checker never attempts
-to reimplement a YAML parser.
+The contract is written as JSON, a valid subset of YAML 1.2, so this bootstrap
+checker remains dependency-free. It intentionally avoids invasive runtime tests
+for legacy/fork/hardware preservation repositories.
 """
 
 from __future__ import annotations
@@ -17,71 +16,23 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "docs" / "ARCHITECTURE.yaml"
-DEFAULT_MAX_ENTRIES = 10
-DEFAULT_MAX_LINES = 500
 REQUIRED_TOP_LEVEL = {
-    "schema_version",
-    "repository",
-    "architecture",
-    "source_layout",
-    "limits",
-    "libraries",
-    "interfaces",
-    "tests",
-    "data",
-    "governance",
-    "exceptions",
+    "schema_version", "repository", "preservation", "architecture",
+    "source_layout", "limits", "libraries", "interfaces", "tests",
+    "data", "governance", "exceptions",
 }
 REQUIRED_EXCEPTION_FIELDS = {
-    "rule",
-    "path",
-    "reason",
-    "owner",
-    "risk",
-    "accepted_ceiling",
-    "refactoring_trigger",
+    "rule", "path", "reason", "owner", "risk", "accepted_ceiling", "refactoring_trigger",
+}
+REQUIRED_PRESERVATION_FIELDS = {
+    "archival_notice", "supersession_notice", "revival_gates", "provenance",
+    "license_warning", "security_warning", "private_data_warning",
 }
 IGNORED_DIRS = {
-    ".git",
-    ".venv",
-    "venv",
-    "node_modules",
-    "__pycache__",
-    ".pytest_cache",
-    ".ruff_cache",
-    ".mypy_cache",
-    "build",
-    "dist",
+    ".git", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache",
+    ".ruff_cache", ".mypy_cache", "build", "dist",
 }
-DEFAULT_METADATA = {
-    "__init__.py",
-    "README.md",
-    "ARCHITECTURE.md",
-    "ARCHITECTURE.yaml",
-    "py.typed",
-}
-
-
-class ContractLoadError(ValueError):
-    """Architecture contract could not be loaded."""
-
-    @classmethod
-    def missing(cls, relative_path: Path) -> ContractLoadError:
-        return cls(f"missing {relative_path}")
-
-    @classmethod
-    def invalid_json_subset(cls, error: json.JSONDecodeError) -> ContractLoadError:
-        return cls(
-            "docs/ARCHITECTURE.yaml must remain in the JSON-compatible YAML 1.2 "
-            f"subset for the dependency-free bootstrap checker: {error}"
-        )
-
-
-class ContractShapeError(TypeError):
-    """Architecture contract has an invalid root shape."""
-
-    def __init__(self) -> None:
-        super().__init__("architecture contract root must be an object")
+DEFAULT_METADATA = {"__init__.py", "README.md", "ARCHITECTURE.md", "ARCHITECTURE.yaml", "py.typed"}
 
 
 def ignored_name(name: str) -> bool:
@@ -96,17 +47,18 @@ def load_contract() -> dict[str, Any]:
     try:
         payload = json.loads(CONTRACT.read_text(encoding="utf-8"))
     except FileNotFoundError as exc:
-        raise ContractLoadError.missing(CONTRACT.relative_to(ROOT)) from exc
+        raise ValueError(f"missing {CONTRACT.relative_to(ROOT)}") from exc
     except json.JSONDecodeError as exc:
-        raise ContractLoadError.invalid_json_subset(exc) from exc
+        raise ValueError(
+            "docs/ARCHITECTURE.yaml must remain JSON-compatible YAML 1.2 "
+            f"for the dependency-free bootstrap checker: {exc}"
+        ) from exc
     if not isinstance(payload, dict):
-        raise ContractShapeError
+        raise ValueError("architecture contract root must be an object")
     return payload
 
 
-def exception_map(
-    contract: dict[str, Any], errors: list[str]
-) -> dict[tuple[str, str], dict[str, Any]]:
+def exception_map(contract: dict[str, Any], errors: list[str]) -> dict[tuple[str, str], dict[str, Any]]:
     result: dict[tuple[str, str], dict[str, Any]] = {}
     for index, item in enumerate(contract.get("exceptions", [])):
         if not isinstance(item, dict):
@@ -123,13 +75,7 @@ def exception_map(
     return result
 
 
-def require_exception(
-    exceptions: dict[tuple[str, str], dict[str, Any]],
-    rule: str,
-    path: str,
-    actual: int,
-    errors: list[str],
-) -> None:
+def require_exception(exceptions: dict[tuple[str, str], dict[str, Any]], rule: str, path: str, actual: int, errors: list[str]) -> None:
     item = exceptions.get((rule, path))
     if item is None:
         errors.append(f"{rule} violation at {path}: {actual}; no documented exception")
@@ -143,20 +89,12 @@ def require_exception(
 
 def runtime_dir(path: Path) -> bool:
     try:
-        return any(
-            candidate.suffix == ".py"
-            for candidate in path.rglob("*.py")
-            if not ignored_path(candidate)
-        )
+        return any(p.suffix == ".py" for p in path.rglob("*.py") if not ignored_path(p))
     except OSError:
         return False
 
 
-def validate_source(
-    contract: dict[str, Any],
-    exceptions: dict[tuple[str, str], dict[str, Any]],
-    errors: list[str],
-) -> None:
+def validate_source(contract: dict[str, Any], exceptions: dict[tuple[str, str], dict[str, Any]], errors: list[str]) -> None:
     layout = contract["source_layout"]
     if not layout.get("python_rules_applicable", True):
         return
@@ -164,34 +102,26 @@ def validate_source(
     max_lines = int(contract["limits"]["max_python_module_lines"])
     allowed_non_python = set(layout.get("allowed_non_python_files", []))
     metadata = DEFAULT_METADATA | set(layout.get("metadata_names", []))
-    roots = [ROOT / path for path in layout.get("python_source_roots", [])]
+    roots = [ROOT / p for p in layout.get("python_source_roots", [])]
     for source_root in roots:
         rel_root = source_root.relative_to(ROOT).as_posix()
         if not source_root.is_dir():
             errors.append(f"declared Python source root is missing: {rel_root}")
             continue
         for current, dirs, files in os.walk(source_root):
-            dirs[:] = sorted(
-                name for name in dirs if not ignored_name(name) and not name.startswith(".")
-            )
+            dirs[:] = sorted(d for d in dirs if not ignored_name(d) and not d.startswith("."))
             current_path = Path(current)
             rel_dir = current_path.relative_to(ROOT).as_posix()
-            runtime_dirs = [name for name in dirs if runtime_dir(current_path / name)]
-            runtime_files = [
-                name for name in files if name.endswith(".py") and name != "__init__.py"
-            ]
+            runtime_dirs = [d for d in dirs if runtime_dir(current_path / d)]
+            runtime_files = [f for f in files if f.endswith(".py") and f != "__init__.py"]
             count = len(runtime_dirs) + len(runtime_files)
             if count > max_entries:
                 require_exception(exceptions, "source_fanout", rel_dir, count, errors)
             for filename in files:
                 rel = (current_path / filename).relative_to(ROOT).as_posix()
-                allowed = (
-                    filename.endswith((".py", ".pyi"))
-                    or filename in metadata
-                    or rel in allowed_non_python
-                )
-                if not allowed:
-                    require_exception(exceptions, "source_entry_type", rel, 1, errors)
+                if filename.endswith((".py", ".pyi")) or filename in metadata or rel in allowed_non_python:
+                    continue
+                require_exception(exceptions, "source_entry_type", rel, 1, errors)
         for module in sorted(source_root.rglob("*.py")):
             if ignored_path(module):
                 continue
@@ -201,50 +131,56 @@ def validate_source(
                 errors.append(f"Python module is not UTF-8 text: {module.relative_to(ROOT)}")
                 continue
             if lines > max_lines:
-                require_exception(
-                    exceptions,
-                    "python_module_max_lines",
-                    module.relative_to(ROOT).as_posix(),
-                    lines,
-                    errors,
-                )
+                require_exception(exceptions, "python_module_max_lines", module.relative_to(ROOT).as_posix(), lines, errors)
 
 
-def validate_repository(contract: dict[str, Any], errors: list[str]) -> None:
-    repository = contract["repository"]
-    for key in ("owner", "name", "profile", "status"):
-        if not repository.get(key):
+def validate_contract(contract: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    missing = REQUIRED_TOP_LEVEL - set(contract)
+    if missing:
+        errors.append(f"contract missing top-level keys: {sorted(missing)}")
+        return errors
+    exceptions = exception_map(contract, errors)
+    repo = contract["repository"]
+    for key in ("owner", "name", "profile", "status", "enforcement"):
+        if not repo.get(key):
             errors.append(f"repository.{key} is required")
-
-
-def validate_limits(contract: dict[str, Any], errors: list[str]) -> None:
-    limits = contract["limits"]
-    if limits.get("max_immediate_runtime_entries") != DEFAULT_MAX_ENTRIES:
-        errors.append(
-            "default max_immediate_runtime_entries must be 10; "
-            "repo override belongs in a documented exception"
-        )
-    if limits.get("max_python_module_lines") != DEFAULT_MAX_LINES:
-        errors.append(
-            "default max_python_module_lines must be 500; "
-            "repo override belongs in a documented exception"
-        )
-
-
-def validate_documents_and_tests(contract: dict[str, Any], errors: list[str]) -> None:
-    for rel in contract["governance"].get("required_documents", []):
+    if repo.get("profile") != "legacy":
+        errors.append("repository.profile must remain legacy for Project #24 preservation repos")
+    if str(repo.get("enforcement", "")).lower() != "advisory":
+        errors.append("repository.enforcement must be Advisory unless the repo is formally revived")
+    preservation = contract["preservation"]
+    missing_preservation = REQUIRED_PRESERVATION_FIELDS - set(preservation)
+    if missing_preservation:
+        errors.append(f"preservation missing keys: {sorted(missing_preservation)}")
+    for key in ("archival_notice", "supersession_notice", "license_warning", "security_warning", "private_data_warning"):
+        if not str(preservation.get(key, "")).strip():
+            errors.append(f"preservation.{key} must be non-empty")
+    revival = preservation.get("revival_gates", [])
+    if not isinstance(revival, list) or len(revival) < 3:
+        errors.append("preservation.revival_gates must list at least three precise gates")
+    readme = ROOT / "README.md"
+    if not readme.is_file():
+        errors.append("README.md is required for root preservation notice")
+    else:
+        text = readme.read_text(encoding="utf-8", errors="ignore")
+        required_fragments = ["Project #24", "Preservation notice", "Revival gates"]
+        for fragment in required_fragments:
+            if fragment not in text:
+                errors.append(f"README.md missing preservation fragment: {fragment}")
+    if contract["limits"].get("max_immediate_runtime_entries") != 10:
+        errors.append("default max_immediate_runtime_entries must be 10; repo override belongs in an exception")
+    if contract["limits"].get("max_python_module_lines") != 500:
+        errors.append("default max_python_module_lines must be 500; repo override belongs in an exception")
+    required_docs = contract["governance"].get("required_documents", [])
+    for rel in required_docs:
         path = ROOT / rel
-        exists_with_content = path.is_file() and bool(
-            path.read_text(encoding="utf-8", errors="ignore").strip()
-        )
-        if not exists_with_content:
+        if not path.is_file() or not path.read_text(encoding="utf-8", errors="ignore").strip():
             errors.append(f"required document missing or empty: {rel}")
     for suite in contract["tests"].get("required_suites", []):
-        if not (ROOT / "tests" / suite).is_dir():
+        path = ROOT / "tests" / suite
+        if not path.is_dir():
             errors.append(f"required test suite directory missing: tests/{suite}")
-
-
-def validate_interfaces(contract: dict[str, Any], errors: list[str]) -> None:
     ai = contract["interfaces"].get("ai", {})
     human = contract["interfaces"].get("human", {})
     if ai.get("context_file") != "AGENTS.md":
@@ -253,56 +189,25 @@ def validate_interfaces(contract: dict[str, Any], errors: list[str]) -> None:
         errors.append("AI interaction and capability discovery decisions are required")
     if not human.get("interaction") or not human.get("dunder_policy"):
         errors.append("human interaction and dunder policy decisions are required")
-
-
-def validate_libraries_and_data(contract: dict[str, Any], errors: list[str]) -> None:
-    libraries = contract["libraries"]
-    if not libraries.get("selection_policy"):
-        errors.append("maintained-library selection policy is required")
-    if not isinstance(libraries.get("decisions"), list):
-        errors.append("libraries.decisions must be a list")
-    core = contract["data"].get("core_repositories", {})
-    for name in ("PDP", "financial_problem_formulations", "ui_and_artifacts"):
-        if name not in core:
-            errors.append(f"data.core_repositories must decide {name} posture")
-
-
-def validate_contract(contract: dict[str, Any]) -> list[str]:
-    errors: list[str] = []
-    missing = REQUIRED_TOP_LEVEL - set(contract)
-    if missing:
-        return [f"contract missing top-level keys: {sorted(missing)}"]
-    exceptions = exception_map(contract, errors)
-    validate_repository(contract, errors)
-    validate_limits(contract, errors)
-    validate_documents_and_tests(contract, errors)
-    validate_interfaces(contract, errors)
-    validate_libraries_and_data(contract, errors)
+    decisions = contract["libraries"].get("decisions", [])
+    if not contract["libraries"].get("selection_policy") or len(decisions) < 2:
+        errors.append("maintained-library selection policy and at least two decisions are required")
     validate_source(contract, exceptions, errors)
     return errors
-
-
-def write_line(message: str) -> None:
-    sys.stdout.write(f"{message}\n")
 
 
 def main() -> int:
     try:
         contract = load_contract()
-    except (ContractLoadError, ContractShapeError) as exc:
-        write_line(f"architecture contract FAILED\n- {exc}")
-        return 1
-    errors = validate_contract(contract)
+        errors = validate_contract(contract)
+    except ValueError as exc:
+        errors = [str(exc)]
     if errors:
-        write_line("architecture contract FAILED")
+        print("portfolio architecture check failed:")
         for error in errors:
-            write_line(f"- {error}")
+            print(f"- {error}")
         return 1
-    repository = contract["repository"]
-    write_line(
-        "architecture contract OK: "
-        f"{repository['owner']}/{repository['name']} profile={repository['profile']}"
-    )
+    print("portfolio architecture check passed (advisory legacy/preservation profile)")
     return 0
 
 

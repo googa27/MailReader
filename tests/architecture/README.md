@@ -1,7 +1,3 @@
-# Architecture tests
+# architecture tests
 
-Repository: `MailReader`.
-
-Executable fitness functions sourced from docs/ARCHITECTURE.yaml.
-
-If no executable tests exist here yet, this README is the boundary contract: add the first test when a change introduces behavior in this tier.
+Architecture tests validate the Project #24 advisory contract and preservation notices without exercising inherited runtime code.

@@ -60,10 +60,11 @@ Definition of done for preservation edits:
 - `__init__.py` is a compatibility/public facade only: imports, re-exports, `__all__`, metadata, and bounded lazy hooks. Domain classes and business functions belong in cohesive modules.
 - Severe branch concentration is a review trigger, not a command to redistribute files. Fix it only when dependency, churn, ownership, or comprehension evidence shows a bad boundary.
 
+- Governance setup: `python3 -m pip install -r requirements-architecture.txt`
 - AI/hierarchy policy: `python3 scripts/check_ai_hierarchy_policy.py`
 ### GitHub Actions supply-chain controls
 
 - Pin every third-party action to a full-length commit SHA; keep the human-readable release in a comment.
 - Declare least-privilege workflow `permissions`; read-only `contents` is the default.
 - Set `persist-credentials: false` on checkout and provide narrowly scoped credentials only to the step that needs mutation.
-- Validate workflow changes with `python scripts/selftest_ai_hierarchy_policy.py`, `pinact run --fix=false --no-api`, and `uvx zizmor --offline --min-severity medium .github/workflows`.
+- Validate workflow changes with `python scripts/selftest_ai_hierarchy_policy.py`, `pinact run --fix=false --no-api`, and `zizmor --offline --min-severity medium .`.

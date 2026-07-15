@@ -61,3 +61,9 @@ Definition of done for preservation edits:
 - Severe branch concentration is a review trigger, not a command to redistribute files. Fix it only when dependency, churn, ownership, or comprehension evidence shows a bad boundary.
 
 - AI/hierarchy policy: `python3 scripts/check_ai_hierarchy_policy.py`
+### GitHub Actions supply-chain controls
+
+- Pin every third-party action to a full-length commit SHA; keep the human-readable release in a comment.
+- Declare least-privilege workflow `permissions`; read-only `contents` is the default.
+- Set `persist-credentials: false` on checkout and provide narrowly scoped credentials only to the step that needs mutation.
+- Validate workflow changes with `pinact run --check` and `uvx zizmor --offline --min-severity medium .github/workflows`.

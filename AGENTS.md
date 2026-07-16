@@ -43,3 +43,28 @@ Definition of done for preservation edits:
 - README, AGENTS, `docs/ARCHITECTURE.yaml`, `docs/ARCHITECTURE.md`, and tests agree.
 - `python scripts/check_portfolio_architecture.py` passes.
 - Only advisory governance files are changed unless a separate reviewed revival task authorizes runtime edits.
+
+### AI-assisted change controls
+
+- Treat agent output as untrusted until a human reviews it and executable repository gates verify it. The human author remains accountable.
+- Keep agent changes small, single-purpose, and completely reviewable. Generated tests are not a sufficient sole oracle for generated implementation.
+- New dependencies require human approval plus package-existence, maintenance, API, license, vulnerability, and typosquat checks; lock reproducibly.
+- Security-sensitive code (authentication, cryptography, parsers, serialization, SQL, filesystem, subprocess, network, permissions, or private data) requires dedicated human review.
+- Use least privilege: workspace-scoped writes, network/secret access only when approved, no autonomous merge/deploy, and exact command/result provenance.
+- Measure AI impact with lead time, review time, CI failures, reverts, escaped defects, and churn; do not infer productivity from self-report.
+
+### Semantic source-tree hierarchy
+
+- Do **not** balance source folders like AVL/B-trees. Package boundaries follow information hiding, cohesion, coupling, public contracts, ownership, and change patterns; naturally heavy-tailed sizes are expected.
+- Empty marker packages and speculative folder scaffolds are forbidden unless an exact, dated structural-role exception exists. Keep future plans in architecture/roadmap documents.
+- `__init__.py` is a compatibility/public facade only: imports, re-exports, `__all__`, metadata, and bounded lazy hooks. Domain classes and business functions belong in cohesive modules.
+- Severe branch concentration is a review trigger, not a command to redistribute files. Fix it only when dependency, churn, ownership, or comprehension evidence shows a bad boundary.
+
+- Governance setup: `python3 -m pip install -r requirements-architecture.txt`
+- AI/hierarchy policy: `python3 scripts/check_ai_hierarchy_policy.py`
+### GitHub Actions supply-chain controls
+
+- Pin every third-party action to a full-length commit SHA; keep the human-readable release in a comment.
+- Declare least-privilege workflow `permissions`; read-only `contents` is the default.
+- Set `persist-credentials: false` on checkout and provide narrowly scoped credentials only to the step that needs mutation.
+- Validate workflow changes with `python scripts/selftest_ai_hierarchy_policy.py`, `pinact run --fix=false --no-api`, and `zizmor --offline --min-severity medium .`.

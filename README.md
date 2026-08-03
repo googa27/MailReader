@@ -24,15 +24,15 @@ Placeholder repository for the intended goal: reading email data into CSV.
 
 ## Current status
 
-This repository does not currently contain an implementation. The committed
-contents are only:
+This repository does not currently contain a mail-reading implementation. The committed runtime-relevant contents are only preservation/governance material:
 
 - `README.md`
 - `LICENSE` (MIT)
+- `AGENTS.md`
+- `docs/ARCHITECTURE.*`
+- advisory architecture-policy scripts, workflow, and tests under `scripts/`, `.github/`, and `tests/architecture/`
 
-There are no source files, requirements, examples, tests, fixtures, or documented
-setup commands in this checkout. Because of that, there is no honest install or
-test workflow to run yet.
+There are no mail reader source files, runtime requirements, examples, fixtures, parser tests, CSV schema, or supported setup commands in this checkout. Because of that, there is no honest install or runtime test workflow to run yet; the executable checks are preservation/governance gates only.
 
 ## Intended direction
 

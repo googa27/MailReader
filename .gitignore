@@ -1,0 +1,9 @@
+# Credentials and private exports must stay outside version control.
+**/credentials.json
+**/token.json
+**/GmailApiInteraction/Credentials/data/
+**/Outputs/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+

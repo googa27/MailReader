@@ -1,11 +1,12 @@
 # AGENTS.md — MailReader
 
-Purpose: Project #24 legacy preservation. This repository is classified as `Legacy Skeleton` with `legacy` profile and Advisory enforcement. Do not make unsupported maturity, security, maintenance, or production-readiness claims.
+Purpose: Project #24 legacy preservation. This repository is classified as `Legacy Prototype — Archived Source` with `legacy` profile and Advisory enforcement. Do not make unsupported maturity, security, maintenance, or production-readiness claims.
 
 Canonical docs:
 - `README.md` root preservation notice
 - `docs/ARCHITECTURE.yaml` machine-readable source of truth
 - `docs/ARCHITECTURE.md` rationale and maintained-library/revival notes
+- `legacy/2022-mailreader/README.md` and `manifest.json` original-source mapping and known defects
 
 Provenance and attribution:
 - Origin owner: `googa27`; issue: https://github.com/googa27/MailReader/issues/1
@@ -20,11 +21,14 @@ Safety boundaries:
 
 Exact commands:
 - Setup: no supported automated setup is declared; treating runtime setup as a revival gate is required.
-- Tests: no inherited runtime test suite is claimed; run the architecture checker only.
+- Tests: `PYTHONDONTWRITEBYTECODE=1 python -m pytest -p no:cacheprovider tests/architecture` (governance only; no archived source imports).
+- Preservation: `PYTHONDONTWRITEBYTECODE=1 python scripts/check_legacy_preservation.py` (exact bytes and AST syntax only).
 - Lint/format: no lint/format command is declared.
 - Architecture: `python scripts/check_portfolio_architecture.py`
 
 Implementation rules for future work:
+- All 27 original master blobs are immutable under `legacy/2022-mailreader/`; preserve original history and mapping. Do not import, run, package or install the prototype as part of preservation. Source changes require a reviewed revival task.
+- Historical imports reference `src.*`; no root runtime package or supported entrypoint is exposed. Never use real mail to verify this archive.
 - Research upstream/current maintained libraries, standards, datasets, licenses, and security posture before changing runtime code.
 - Prefer maintained libraries; custom code must be limited to domain semantics, adapters, composition, or genuinely missing algorithms with oracle/reference tests.
 - Avoid invasive refactors of inherited code. Record exact no-growth exceptions and compatibility risks before structural changes.
@@ -41,7 +45,7 @@ Revival gates:
 
 Definition of done for preservation edits:
 - README, AGENTS, `docs/ARCHITECTURE.yaml`, `docs/ARCHITECTURE.md`, and tests agree.
-- `python scripts/check_portfolio_architecture.py` passes.
+- `python scripts/check_legacy_preservation.py`, architecture and AI/hierarchy gates pass; original source is inspected without import side effects.
 - Only advisory governance files are changed unless a separate reviewed revival task authorizes runtime edits.
 
 ### AI-assisted change controls

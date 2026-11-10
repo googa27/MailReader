@@ -4,13 +4,13 @@
 
 Source of truth: `docs/ARCHITECTURE.yaml`. Tracking issue: https://github.com/googa27/MailReader/issues/1. Profile: `legacy`; enforcement: Advisory.
 
-This repository is preserved as `Legacy Skeleton`. The governance files are intentionally advisory and additive: they document provenance, risks, and revival gates without refactoring inherited code or claiming active maintenance.
+This repository is preserved as `Legacy Prototype — Archived Source`. The governance files are intentionally advisory and additive: they document provenance, risks, and revival gates without refactoring inherited code or claiming active maintenance.
 
 ## Archival, supersession, and provenance
 
 - Archival notice: historical/reference preservation only; not production-ready, maintained, secure, or operationally validated.
 - Supersession notice: prefer upstream or maintained libraries for new work.
-- Canonical/provenance: near-empty legacy repository owned by googa27; no upstream remote configured locally
+- Canonical/provenance: owner-authored 2022 Gmail/receipt/XLSX prototype from unrelated master history; complete original tip tree preserved under legacy/2022-mailreader; no upstream configured
 - Upstream: No upstream remote is configured locally.
 - License/provenance warning: Root LICENSE is MIT.
 - Security/private-data warning: Email parsing touches untrusted content; isolate attachments, avoid remote fetching, and use least-privilege credentials/keyrings on revival. Never commit mailboxes, message bodies, addresses, credentials, OAuth tokens, app passwords, exports, or CSVs derived from private email.
@@ -47,7 +47,7 @@ Email parsing touches untrusted content; isolate attachments, avoid remote fetch
 
 ## AI and human interface
 
-- AI interface: Minimal AGENTS explaining current skeleton and revival gate; no MCP/plugin.
+- AI interface: AGENTS plus immutable archive manifest and offline byte/AST gates; no active mail application or MCP/plugin.
 - Human/notebook interface: No stable API yet; typed message/evidence interfaces only on revival.
 - Core posture: Avoid core dependencies.
 
@@ -69,3 +69,21 @@ Email parsing touches untrusted content; isolate attachments, avoid remote fetch
 - https://numpy.org/doc/stable/user/basics.dispatch.html
 - https://evolutionaryarchitecture.com/precis.html
 - https://learn.microsoft.com/en-us/azure/databricks/lakehouse/medallion
+
+
+## Original history and source preservation
+
+The previous default-branch skeleton description omitted the unrelated original `master` history. All 14 commits through `3658fddcd5e796b9bcb2b8a9231aa3db64bfd2ec` must remain ancestors after integration. Its 27 tip blobs are mapped without byte changes under `legacy/2022-mailreader/`; `manifest.json` records original paths, Git blob identity, SHA-256 and sizes. The archive README and manifest are new metadata. No source is exposed as a root runtime package.
+
+`python scripts/check_legacy_preservation.py` verifies exact inventory, immutable bytes and Python AST syntax without importing source. The standard source-size/hierarchy gates now inspect the archived `src` and `executables` roots. The inherited empty FrontEnd package has an exact, dated no-growth exception. This static baseline does not establish runtime or security acceptance.
+
+Known inherited defects include missing Gmail pagination/empty-result handling, timestamp/date dictionary collisions losing purchases, first-run settlement failure, import-time date defaults, fixed MIME/HTML/date assumptions, parsed-content logging and plaintext source-tree token storage. Root ignore rules cover actual credential/data/output paths; secure credential custody and public-synthetic parser/aggregation oracles are revival gates. Historical source bytes are deliberately not repaired during preservation.
+
+| Capability on revival | Maintained provider and boundary | Primary evidence |
+|---|---|---|
+| Gmail/OAuth | Official Google Python API/auth client behind acquisition and secure credential adapters | https://developers.google.com/workspace/gmail/api/quickstart/python |
+| Pagination | Google client pageToken/nextPageToken protocol with empty-page fixtures | https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/list |
+| MIME parsing | Python email BytesParser with explicit policy, body/part traversal and size limits | https://docs.python.org/3/library/email.parser.html |
+| Credential custody | Reviewed platform secure storage outside source, retention/revocation policy | https://developers.google.com/identity/protocols/oauth2/resources/best-practices |
+
+No runtime dependency is added or pinned by this preservation change. Runtime setup remains unsupported until formal revival.

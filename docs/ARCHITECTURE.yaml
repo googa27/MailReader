@@ -4,7 +4,7 @@
     "owner": "googa27",
     "name": "MailReader",
     "profile": "legacy",
-    "status": "Legacy Skeleton",
+    "status": "Legacy Prototype — Archived Source",
     "enforcement": "Advisory",
     "project": "https://github.com/users/googa27/projects/24",
     "issue": "https://github.com/googa27/MailReader/issues/1",
@@ -19,11 +19,21 @@
       "Create public-synthetic email fixtures and parser/export oracle tests.",
       "Declare supported providers/protocols and failure modes before stable API claims."
     ],
-    "provenance": "near-empty legacy repository owned by googa27; no upstream remote configured locally",
+    "provenance": "Owner-authored 2022 Gmail/receipt/XLSX prototype from unrelated master history, complete tip tree preserved under legacy/2022-mailreader; no upstream configured.",
     "license_warning": "Root LICENSE is MIT.",
     "security_warning": "Email parsing touches untrusted content; isolate attachments, avoid remote fetching, and use least-privilege credentials/keyrings on revival.",
     "private_data_warning": "Never commit mailboxes, message bodies, addresses, credentials, OAuth tokens, app passwords, exports, or CSVs derived from private email.",
-    "data_posture": "No current data architecture; any revival requires private-email classification, retention, redaction, and local-custody plan."
+    "data_posture": "No current data architecture; any revival requires private-email classification, retention, redaction, and local-custody plan.",
+    "archive": {
+      "path": "legacy/2022-mailreader",
+      "source_ref": "master",
+      "source_commit": "3658fddcd5e796b9bcb2b8a9231aa3db64bfd2ec",
+      "original_commits": 14,
+      "original_blobs": 27,
+      "mapping_manifest": "legacy/2022-mailreader/manifest.json",
+      "checker": "python scripts/check_legacy_preservation.py",
+      "policy": "Preserve exact source bytes and original history; no live Gmail access, source imports, supported runtime or private data."
+    }
   },
   "architecture": {
     "style": "evolutionary, contract-first, advisory-preservation",
@@ -41,8 +51,11 @@
     ]
   },
   "source_layout": {
-    "python_rules_applicable": false,
-    "python_source_roots": [],
+    "python_rules_applicable": true,
+    "python_source_roots": [
+      "legacy/2022-mailreader/src",
+      "legacy/2022-mailreader/executables"
+    ],
     "metadata_names": [
       "ARCHITECTURE.md",
       "ARCHITECTURE.yaml",
@@ -96,6 +109,12 @@
       "checker": "python3 scripts/check_ai_hierarchy_policy.py",
       "single_branch_runtime_directory": "review_required_above_minimum_descendant_modules",
       "two_branch_dominance_threshold": 0.95
+    },
+    "preservation_baseline": {
+      "nonempty_python_modules": 8,
+      "max_module_lines": 114,
+      "all_original_blobs_immutable": true,
+      "enforced_by": "scripts/check_legacy_preservation.py"
     }
   },
   "limits": {
@@ -201,8 +220,8 @@
     "ai": {
       "primary_agent": "Hermes Agent",
       "context_file": "AGENTS.md",
-      "interaction": "Minimal AGENTS explaining current skeleton and revival gate; no MCP/plugin.",
-      "capability_discovery": "AGENTS.md plus scripts/check_portfolio_architecture.py; no maintained runtime capability is claimed while archived.",
+      "interaction": "Read-only discovery of archived source and deterministic offline preservation checks; no active mail application, skill or MCP.",
+      "capability_discovery": "AGENTS.md, archive README/manifest and scripts/check_legacy_preservation.py; no maintained runtime capability claimed.",
       "skills": "Use/update a repo or class-level Hermes skill only for recurring non-trivial workflows after stable local contracts exist.",
       "plugin_mcp_policy": "Deferred unless formal revival proves stable contracts, measured multi-client/tool interoperability, least privilege, and separate verification.",
       "declared_entrypoints": [],
@@ -233,9 +252,10 @@
     ],
     "commands": {
       "setup": "No supported automated setup is currently declared; treat this as a revival gate.",
-      "test": "No executable inherited runtime test command is currently declared; run the architecture checker only.",
+      "test": "python -m pytest -p no:cacheprovider tests/architecture (governance only; never imports archived runtime)",
       "lint": "No lint command is currently declared.",
-      "architecture": "python scripts/check_portfolio_architecture.py"
+      "architecture": "python scripts/check_portfolio_architecture.py",
+      "preservation": "python scripts/check_legacy_preservation.py"
     },
     "ci_workflow": "advisory; see blocking_ci exception",
     "mirror_source": "Only after revival and stable source boundaries."
@@ -354,15 +374,6 @@
   },
   "exceptions": [
     {
-      "rule": "python_source_layout",
-      "path": "src/",
-      "reason": "Legacy/fork/hardware preservation does not force a source-layout migration in an advisory documentation change.",
-      "owner": "googa27 Portfolio Project #24",
-      "risk": "Python source topology is not protected by src-specific blocking checks while archived.",
-      "accepted_ceiling": 0,
-      "refactoring_trigger": "Before adding a maintained Python package or material runtime feature, design a src layout and activate source checks."
-    },
-    {
       "rule": "blocking_ci",
       "path": ".github/workflows/portfolio-architecture.yml",
       "reason": "Advisory legacy/fork/hardware preservation avoids noisy CI divergence until formal revival.",
@@ -370,6 +381,18 @@
       "risk": "Architecture checks are local/advisory rather than automatic on the default branch.",
       "accepted_ceiling": 0,
       "refactoring_trigger": "Enable blocking CI before the first new runtime feature, public release, or maintained status claim."
+    },
+    {
+      "rule": "empty_runtime_directory",
+      "path": "legacy/2022-mailreader/src/FrontEnd",
+      "reason": "The empty FrontEnd package is an immutable original 2022 artifact, retained for historical tree identity rather than new scaffolding.",
+      "owner": "googa27 Portfolio Project #24",
+      "risk": "Historical empty package conveys no implemented frontend.",
+      "accepted_ceiling": 0,
+      "refactoring_trigger": "Formal runtime revival or any proposed change to archived source; review by 2027-05-15.",
+      "structural_role": "compatibility_facade",
+      "review_by": "2027-05-15",
+      "evidence": "master3658fddcd5e796b9bcb2b8a9231aa3db64bfd2ec and legacy/2022-mailreader/manifest.json preserve original empty __init__.py blob."
     }
   ]
 }

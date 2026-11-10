@@ -20,6 +20,8 @@ jobs:
         run: python3 -m pip install --disable-pip-version-check -r requirements-architecture.txt
       - name: Validate portfolio architecture
         run: python3 scripts/check_portfolio_architecture.py
+      - name: Verify immutable original source without importing it
+        run: python3 scripts/check_legacy_preservation.py
       - name: Validate AI and semantic hierarchy policy
         run: python3 scripts/check_ai_hierarchy_policy.py
       - name: Adversarially self-test governance gate

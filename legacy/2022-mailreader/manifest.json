@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "source_repository": "googa27/MailReader",
+  "source_ref": "master",
+  "source_commit": "3658fddcd5e796b9bcb2b8a9231aa3db64bfd2ec",
+  "purpose": "Immutable historical reference; no supported runtime or live email access.",
+  "files": [
+    {
+      "original_path": ".gitignore",
+      "archived_path": "legacy/2022-mailreader/.gitignore",
+      "git_blob_sha": "18ba506f5ec6d2eb0693cb196d8c4af8291a3034",
+      "sha256": "e672c03051ebb666d2651c438b2533c964ac60437c04e85eb23825a924b517dc",
+      "bytes": 206
+    },
+    {
+      "original_path": ".idea/.gitignore",
+      "archived_path": "legacy/2022-mailreader/.idea/.gitignore",
+      "git_blob_sha": "26d33521af10bcc7fd8cea344038eaaeb78d0ef5",
+      "sha256": "a9e54fc4f08bc97d82c04bd86ff37d3af84ba9ef4ad87fcfcb438dab622e8aaa",
+      "bytes": 47
+    },
+    {
+      "original_path": ".idea/MailReader.iml",
+      "archived_path": "legacy/2022-mailreader/.idea/MailReader.iml",
+      "git_blob_sha": "06b00850abbc9b0634a6f2da849b060d0b399e3a",
+      "sha256": "02561aecc385cfab927fc3f335e3a7224b399ed3ca1d0e214b1f118258d83a6b",
+      "bytes": 555
+    },
+    {
+      "original_path": ".idea/inspectionProfiles/Project_Default.xml",
+      "archived_path": "legacy/2022-mailreader/.idea/inspectionProfiles/Project_Default.xml",
+      "git_blob_sha": "3e84b2721904c997b25452b8064d689ab1b2475d",
+      "sha256": "8ca0a0642b6c7f72786f3427943334140b718b8aa58db1b52c388cadddacf19d",
+      "bytes": 1150
+    },
+    {
+      "original_path": ".idea/inspectionProfiles/profiles_settings.xml",
+      "archived_path": "legacy/2022-mailreader/.idea/inspectionProfiles/profiles_settings.xml",
+      "git_blob_sha": "dd4c951ef44ebdc37bbe4a453aab974c815ca6f6",
+      "sha256": "9c3cbde9dcb3d1bd9bd6f93494fbcb5361acf5f3de3dc8c699f9cf805a6f223f",
+      "bytes": 228
+    },
+    {
+      "original_path": ".idea/misc.xml",
+      "archived_path": "legacy/2022-mailreader/.idea/misc.xml",
+      "git_blob_sha": "bc77e743aba38a4a21b6c79a296f067a7b62c44a",
+      "sha256": "dd6cdb63ae8c2981c4790228eed8363d76d31e5f70653993884e3280423986f5",
+      "bytes": 302
+    },
+    {
+      "original_path": ".idea/modules.xml",
+      "archived_path": "legacy/2022-mailreader/.idea/modules.xml",
+      "git_blob_sha": "6634866cf426e6ee30a95cc9bd0a8915894b60e5",
+      "sha256": "eea22a8d367abe1d1cc7338127c433d924436fcc1bb8b44036c106aa33601e87",
+      "bytes": 272
+    },
+    {
+      "original_path": ".idea/vcs.xml",
+      "archived_path": "legacy/2022-mailreader/.idea/vcs.xml",
+      "git_blob_sha": "94a25f7f4cb416c083d265558da75d457237d671",
+      "sha256": "55768f1f84fb117f1d0fc383e180b5d0aa5e5e6584c8c4a2995c15b4237f0972",
+      "bytes": 180
+    },
+    {
+      "original_path": "__init__.py",
+      "archived_path": "legacy/2022-mailreader/__init__.py",
+      "git_blob_sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "executables/__init__.py",
+      "archived_path": "legacy/2022-mailreader/executables/__init__.py",
+      "git_blob_sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "executables/backend_demo.py",
+      "archived_path": "legacy/2022-mailreader/executables/backend_demo.py",
+      "git_blob_sha": "01de42e647e6ad9604a64031d9ca6d3ee01cfe0b",
+      "sha256": "7012976a934c5aa45aaac6f90f5b5ebc84000f9400383e4625287e1b9a8316d6",
+      "bytes": 1463
+    },
+    {
+      "original_path": "src/CONFIG.py",
+      "archived_path": "legacy/2022-mailreader/src/CONFIG.py",
+      "git_blob_sha": "f6e6805eebbd17dcf9c4135a884604428b1ec1eb",
+      "sha256": "efc8a124034585ace6343bceb806638cc62038dcbfca931202485c51539520e2",
+      "bytes": 709
+    },
+    {
+      "original_path": "src/FrontEnd/__init__.py",
+      "archived_path": "legacy/2022-mailreader/src/FrontEnd/__init__.py",
+      "git_blob_sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "src/GmailApiInteraction/Credentials/GmailCredentialManager.py",
+      "archived_path": "legacy/2022-mailreader/src/GmailApiInteraction/Credentials/GmailCredentialManager.py",
+      "git_blob_sha": "cc7aa4115cd6f9ed696c706d77ac07c6d2521411",
+      "sha256": "d8f85061d2cc80c18b43a209b40e1f902bbc0849824d1021dd35bb0c6cf47952",
+      "bytes": 1595
+    },
+    {
+      "original_path": "src/GmailApiInteraction/Credentials/__init__.py",
+      "archived_path": "legacy/2022-mailreader/src/GmailApiInteraction/Credentials/__init__.py",
+      "git_blob_sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "src/GmailApiInteraction/GmailController.py",
+      "archived_path": "legacy/2022-mailreader/src/GmailApiInteraction/GmailController.py",
+      "git_blob_sha": "f0bc404a38187ba24f1d06202318f91472b434db",
+      "sha256": "4a00fd174f3d6ee93e74267959dc60b08ccbd70ff753a00f8e6b9b5cfdb09d87",
+      "bytes": 2392
+    },
+    {
+      "original_path": "src/GmailApiInteraction/__init__.py",
+      "archived_path": "legacy/2022-mailreader/src/GmailApiInteraction/__init__.py",
+      "git_blob_sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "src/LocalInteractions/SettlementManager.py",
+      "archived_path": "legacy/2022-mailreader/src/LocalInteractions/SettlementManager.py",
+      "git_blob_sha": "7f06a8f0af3f82b12432aaaebdd850cacca74fb6",
+      "sha256": "18f7f8e1e57d53fdfeb3ed724e8c17791b955e19554aa47c1dbf7e5aada9cacf",
+      "bytes": 717
+    },
+    {
+      "original_path": "src/LocalInteractions/__init__.py",
+      "archived_path": "legacy/2022-mailreader/src/LocalInteractions/__init__.py",
+      "git_blob_sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "src/Logging/GmailLoggers.py",
+      "archived_path": "legacy/2022-mailreader/src/Logging/GmailLoggers.py",
+      "git_blob_sha": "d044cc657d6a34c43e0db9f0b007c25d832b77a5",
+      "sha256": "da750c16e160a93a4135baea83aa6e92b1aed1e400e411a979238ddca7f5d876",
+      "bytes": 874
+    },
+    {
+      "original_path": "src/Logging/__init__.py",
+      "archived_path": "legacy/2022-mailreader/src/Logging/__init__.py",
+      "git_blob_sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "src/MainBackend/Accountant.py",
+      "archived_path": "legacy/2022-mailreader/src/MainBackend/Accountant.py",
+      "git_blob_sha": "845f0c0ba4366b40d2ea8a65888f44d896ac0621",
+      "sha256": "10e108ba2edd64dca57fab698f63b73484a32440e3bb993a0a4bb3316aa2804a",
+      "bytes": 2580
+    },
+    {
+      "original_path": "src/MainBackend/__init__.py",
+      "archived_path": "legacy/2022-mailreader/src/MainBackend/__init__.py",
+      "git_blob_sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "src/Parsers/GmailParsers.py",
+      "archived_path": "legacy/2022-mailreader/src/Parsers/GmailParsers.py",
+      "git_blob_sha": "e68255a18f4de4f6e341d2b907aa9f29707b31a3",
+      "sha256": "4a49f5149a16a46e976e48763c36ee12260390471a5af15a53e43332e93f83b9",
+      "bytes": 4380
+    },
+    {
+      "original_path": "src/Parsers/__init__.py",
+      "archived_path": "legacy/2022-mailreader/src/Parsers/__init__.py",
+      "git_blob_sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "src/__init__.py",
+      "archived_path": "legacy/2022-mailreader/src/__init__.py",
+      "git_blob_sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "tests/__init__.py",
+      "archived_path": "legacy/2022-mailreader/tests/__init__.py",
+      "git_blob_sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ]
+}

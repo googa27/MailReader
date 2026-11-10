@@ -1,48 +1,37 @@
 ## Project #24 Preservation notice
 
-Status: Legacy Skeleton (`legacy` profile, Advisory enforcement). This repository is preserved for historical/reference value and is not presented as maintained, production-ready, secure, or suitable for new operational use.
+Status: **Legacy Prototype — Archived Source** (`legacy` profile, Advisory enforcement). This repository preserves a 2022 Gmail-to-settlement prototype for historical reference. It has no supported install, active application, certified runtime, or operational acceptance.
 
-Supersession: prefer the canonical upstream or maintained libraries for new work. Canonical/provenance note: near-empty legacy repository owned by googa27; no upstream remote configured locally. Upstream: No upstream remote is configured locally.
+The original `master` history ends at `3658fddcd5e796b9bcb2b8a9231aa3db64bfd2ec`. Its complete tip tree is preserved byte-for-byte under [legacy/2022-mailreader](legacy/2022-mailreader/README.md); the manifest maps every original path and Git blob. The current governance history and the original history must both remain reachable after integration.
 
-License/provenance: Root LICENSE is MIT.
+Root LICENSE is MIT. The original commits are attributed to the same repository owner, `googa27`; no upstream is configured.
 
-Security/private-data warning: Email parsing touches untrusted content; isolate attachments, avoid remote fetching, and use least-privilege credentials/keyrings on revival. Never commit mailboxes, message bodies, addresses, credentials, OAuth tokens, app passwords, exports, or CSVs derived from private email.
+**Privacy:** Never run the historical demo against real Gmail or commit mail, message bodies, addresses, credentials, OAuth tokens, exports, or private purchase records. Historical code writes tokens inside its source tree and logs parsed content. Ignore rules are a guard against accidental commits, not secure credential storage.
 
-Revival gates:
-- Define threat model, private-data classification, retention policy, and redaction rules before reading real mail.
-- Use least-privilege OAuth/app credentials stored outside the repo; add secret scanning to CI before use.
-- Create public-synthetic email fixtures and parser/export oracle tests.
-- Declare supported providers/protocols and failure modes before stable API claims.
+### Current contents and limitations
 
-See `AGENTS.md` and `docs/ARCHITECTURE.yaml` for the advisory preservation contract.
+The archive contains Gmail acquisition, HTML receipt parsing, account aggregation and XLSX settlement scripts, plus inherited project metadata. Earlier default-branch descriptions that called this repository an implementation-free skeleton omitted the unrelated `master` history.
 
----
+The prototype remains inactive: no runtime dependencies, wrapper, supported entrypoint, live account access, or new inference capability is introduced. Known defects include missing Gmail pagination, same-day order loss, first-run settlement failure, brittle MIME/date parsing, private-content logging and repository-local token storage. See the [archive notice](legacy/2022-mailreader/README.md) and [architecture contract](docs/ARCHITECTURE.yaml).
 
-# MailReader
+### Offline preservation checks
 
-Placeholder repository for the intended goal: reading email data into CSV.
+```bash
+PYTHONDONTWRITEBYTECODE=1 python scripts/check_legacy_preservation.py
+PYTHONDONTWRITEBYTECODE=1 python scripts/check_portfolio_architecture.py
+PYTHONDONTWRITEBYTECODE=1 python scripts/check_ai_hierarchy_policy.py
+PYTHONDONTWRITEBYTECODE=1 python scripts/selftest_ai_hierarchy_policy.py
+PYTHONDONTWRITEBYTECODE=1 python -m pytest -p no:cacheprovider tests/architecture
+```
 
-## Current status
+These checks inspect bytes, syntax and governance. They do not import or execute the archived source and do not prove runtime behavior.
 
-This repository does not currently contain a mail-reading implementation. The committed runtime-relevant contents are only preservation/governance material:
+### Revival gates
 
-- `README.md`
-- `LICENSE` (MIT)
-- `AGENTS.md`
-- `docs/ARCHITECTURE.*`
-- advisory architecture-policy scripts, workflow, and tests under `scripts/`, `.github/`, and `tests/architecture/`
+- Define a threat model, private-data classification, retention, redaction and local-custody policy before reading real mail.
+- Keep least-privilege OAuth credentials in a reviewed platform credential store outside the repository.
+- Select and pin maintained Google API, MIME/HTML parsing and tabular export libraries; use only public synthetic fixtures for verification.
+- Repair the documented acquisition, parsing, aggregation and output defects; declare supported providers, setup, failure modes and test oracles before claiming a stable API.
 
-There are no mail reader source files, runtime requirements, examples, fixtures, parser tests, CSV schema, or supported setup commands in this checkout. Because of that, there is no honest install or runtime test workflow to run yet; the executable checks are preservation/governance gates only.
+See [AGENTS.md](AGENTS.md) and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## Intended direction
-
-A future implementation could add:
-
-1. an email input contract, such as exported mailbox files or an IMAP adapter
-   with credentials kept out of git;
-2. a CSV schema for selected message fields;
-3. a parser with deterministic fixtures;
-4. tests that verify parsing, privacy handling, and CSV output.
-
-Until those pieces are committed, treat this repo as a legacy placeholder rather
-than a working mail-to-CSV tool.
